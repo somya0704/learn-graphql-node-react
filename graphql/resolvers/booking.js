@@ -1,6 +1,6 @@
 const Event = require('../../models/event');
 const Booking = require('../../models/booking');
-const { transformEvent } = require('./common_helper');
+const { transformBooking, transformEvent } = require('./common_helper');
 
 module.exports = {
   bookings: async () => {

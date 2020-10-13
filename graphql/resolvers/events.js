@@ -1,8 +1,12 @@
 const Event = require('../../models/event');
+const User = require('../../models/user');
 const { transformEvent } = require('./common_helper');
 
 module.exports = {
-  events: async () => {
+  events: async (args, req) => {
+    if (!req.isAuth) {
+      throw new Error('Unauthenticated!');
+    }
     try {
       const events = await Event.find().populate('creator');
       return events.map(event => {
@@ -14,20 +18,23 @@ module.exports = {
     }
   },
 
-  createEvent: async args => {
+  createEvent: async (args, req) => {
+    if (!req.isAuth) {
+      throw new Error('Unauthenticated!');
+    }
     const event = new Event({
       title: args.eventInput.title,
       description: args.eventInput.description,
       price: +args.eventInput.price,
       date: new Date(args.eventInput.date),
-      creator: '5f6ef0bb1f381bf44bacd6a4'
+      creator: req.userId
     })
     let createdEvent;
     try {
       const result = await event.save();
       console.log(result);
       createdEvent = transformEvent(result);
-      const creator = await User.findById('5f6ef0bb1f381bf44bacd6a4');
+      const creator = await User.findById(result.creator);
       if (!creator) {
         throw new Error('User not found');
       }
